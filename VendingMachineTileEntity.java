@@ -3,11 +3,15 @@ package de.opatut.tradecraft;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
+import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -21,7 +25,8 @@ import net.minecraftforge.client.IItemRenderer;
 public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	private ItemStack mainSlot;
 	private ItemStack[] refillSlots;
-	private int price = 1;
+	private int price;
+    private String owner = "*nobody*";
 
 	public VendingMachineTileEntity() {
 		refillSlots = new ItemStack[27];
@@ -29,6 +34,10 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 
 	public int getSizeInventory() {
 		return 28;
+	}
+	
+	public String getOwner() {
+		return owner;
 	}
 
 	@Override
@@ -115,6 +124,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 			}
 		}
 		price = tagCompound.getInteger("Price");
+        owner = tagCompound.getString("Owner");
 	}
 
 	@Override
@@ -131,8 +141,13 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 				itemList.appendTag(tag);
 			}
 		}
+		
+
+		System.out.println("Setting owner to " + owner + " and price at " + price);
+		
 		tagCompound.setTag("Inventory", itemList);
-		tagCompound.setInteger("Price", price); 
+		tagCompound.setInteger("Price", price);
+		tagCompound.setString("Owner", owner.isEmpty() ? "*nobody*" : owner);
 	}
 
 	public void changePrice(int amount) {
@@ -181,7 +196,29 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	    @Override
 	    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick) {
 	        model.render((VendingMachineTileEntity)tileEntity, x, y, z);
+	        
+	        GL11.glPushMatrix();
+	        GL11.glTranslated(x, y, z);
+	        GL11.glRotatef(-90.f, 0.F, 1.0F, 0.0F);
+	        float sc = 2.f/3.f * 1.f/64.f;
+	        GL11.glScalef(sc, -sc, -sc);
+	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        	GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+	        GL11.glDepthMask(false);
+	        
+	        FontRenderer fontRenderer = this.getFontRenderer();
+	        
+	        String s = "String!?";
+	        fontRenderer.drawString(s, -fontRenderer.getStringWidth(s) / 2, 0, 0);
+
+	        GL11.glDepthMask(true);
+	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        GL11.glPopMatrix();     
 	    }
 
+	}
+
+	public void setOwner(String username) {
+		owner = username;
 	}
 }

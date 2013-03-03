@@ -86,6 +86,7 @@ public class VendingMachineGui extends GuiContainer {
 		fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 0x404040);
 		
 		fontRenderer.drawString(tileEntity.getPriceString(), 80, 62, 0x666666, false);
+		fontRenderer.drawString(tileEntity.getOwner(), 80, 82, 0x666666, false);
 	}
 	
 	@Override

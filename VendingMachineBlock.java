@@ -6,9 +6,12 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,8 +19,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public class VendingMachineBlock extends BlockContainer {
-	public final static int RENDER_ID = RenderingRegistry.getNextAvailableRenderId();
-	
+	public final static int RENDER_ID = RenderingRegistry
+			.getNextAvailableRenderId();
+
 	protected VendingMachineBlock(int id) {
 		super(id, Material.rock);
 		setHardness(4.f);
@@ -34,6 +38,9 @@ public class VendingMachineBlock extends BlockContainer {
 			return false;
 		}
 		// TODO: select which gui to load here
+		if(!world.isRemote) {
+			((VendingMachineTileEntity) tileEntity).sendUpdate();
+		}
 		player.openGui(Main.instance, 0, world, x, y, z);
 		return true;
 	}
@@ -43,17 +50,17 @@ public class VendingMachineBlock extends BlockContainer {
 		dropItems(world, x, y, z);
 		super.breakBlock(world, x, y, z, par5, par6);
 	}
-	
+
 	@Override
 	public boolean renderAsNormalBlock() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean isOpaqueCube() {
 		return false;
 	}
-	
+
 	@Override
 	public int getRenderType() {
 		return RENDER_ID;
@@ -94,9 +101,28 @@ public class VendingMachineBlock extends BlockContainer {
 			}
 		}
 	}
+	
+	@Override
+	public boolean hasTileEntity(int metadata) {
+		return true;
+	}
 
 	@Override
 	public TileEntity createNewTileEntity(World var1) {
 		return new VendingMachineTileEntity();
 	}
+	
+	@Override
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving entity) {
+		if(entity instanceof EntityPlayer) {
+			VendingMachineTileEntity te = (VendingMachineTileEntity)world.getBlockTileEntity(x, y, z);
+			
+			if(entity instanceof EntityPlayerMP) {
+				te.setOwner(((EntityPlayerMP)entity).username);
+			} else {
+				te.setOwner(((EntityClientPlayerMP)entity).username);
+			}
+		}
+	}
+	
 }
