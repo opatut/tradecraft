@@ -42,7 +42,7 @@ public class BlockCashRegister extends BlockContainer {
 		}
 		// TODO: select which gui to load here
 		if(!world.isRemote) {
-			((TileEntityCashRegister) tileEntity).sendUpdate();
+			((TileEntityCashRegister) tileEntity).sync();
 		}
 		player.openGui(Main.instance, 0, world, x, y, z);
 		return true;

@@ -89,8 +89,11 @@ public class GuiChashRegister extends GuiContainer {
 		// draws "Inventory" or your regional equivalent
 		// fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 0x404040);
 		
-		fontRenderer.drawString(tileEntity.getPriceString(), 80, 62, 0x666666, false);
-		fontRenderer.drawString(tileEntity.getOwner(), 80, 82, 0x666666, false);
+		String p = tileEntity.getPriceString();
+		fontRenderer.drawString(p, xSize / 2 - fontRenderer.getStringWidth(p) / 2, 62, 0xAAAAAA, false);
+		
+		String o = tileEntity.getOwner();
+		fontRenderer.drawString(o, xSize - 8 - fontRenderer.getStringWidth(o), 6, 0xDDDDDD, false);
 	}
 	
 	@Override

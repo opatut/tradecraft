@@ -21,12 +21,14 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import de.opatut.tradecraft.client.ModelCashRegister;
 import de.opatut.tradecraft.common.PacketHandler;
+import de.opatut.tradecraft.common.TileEntityDirected;
 
-public class TileEntityCashRegister extends TileEntity implements IInventory {
+public class TileEntityCashRegister extends TileEntityDirected implements
+		IInventory {
 	private ItemStack mainSlot;
 	private ItemStack[] refillSlots;
 	private int price;
-    private String owner = "*nobody*";
+	private String owner = "*nobody*";
 
 	public TileEntityCashRegister() {
 		refillSlots = new ItemStack[27];
@@ -35,7 +37,7 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 	public int getSizeInventory() {
 		return 28;
 	}
-	
+
 	public String getOwner() {
 		return owner;
 	}
@@ -109,7 +111,7 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 	@Override
 	public void closeChest() {
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound) {
 		super.readFromNBT(tagCompound);
@@ -124,7 +126,7 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 			}
 		}
 		price = tagCompound.getInteger("Price");
-        owner = tagCompound.getString("Owner");
+		owner = tagCompound.getString("Owner");
 	}
 
 	@Override
@@ -141,7 +143,7 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 				itemList.appendTag(tag);
 			}
 		}
-		
+
 		tagCompound.setTag("Inventory", itemList);
 		tagCompound.setInteger("Price", price);
 		tagCompound.setString("Owner", owner.isEmpty() ? "*nobody*" : owner);
@@ -149,25 +151,27 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 
 	public void changePrice(int amount) {
 		price += amount;
-		if(price < 0) price = 0;
-		
-		if(FMLCommonHandler.instance().getEffectiveSide() != Side.CLIENT) {
-			sendUpdate();
+		if (price < 0)
+			price = 0;
+
+		if (FMLCommonHandler.instance().getEffectiveSide() != Side.CLIENT) {
+			sync();
 		}
 	}
 
 	public void update(int newPrice, String newOwner) {
 		price = newPrice;
 		owner = newOwner;
-		updateEntity();
+		sync();
 	}
 
 	public String getPriceString() {
-		return price == 0 ? "free" : ""+price;
+		return price == 0 ? "free" : "" + price;
 	}
-	
-	public void sendUpdate() {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(6 * 4 + owner.getBytes().length);
+
+	/*public void sendUpdate() {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(
+				6 * 4 + owner.getBytes().length);
 		DataOutputStream outputStream = new DataOutputStream(bos);
 		try {
 			outputStream.writeInt(PacketHandler.CODE_CASH_REGISTER_UPDATE);
@@ -175,7 +179,7 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 			outputStream.writeInt(yCoord);
 			outputStream.writeInt(zCoord);
 			outputStream.writeInt(price);
-			
+
 			outputStream.writeInt(owner.getBytes().length);
 			outputStream.write(owner.getBytes());
 		} catch (Exception ex) {
@@ -186,37 +190,45 @@ public class TileEntityCashRegister extends TileEntity implements IInventory {
 		packet.channel = PacketHandler.CHANNEL_CASH_REGISTER;
 		packet.data = bos.toByteArray();
 		packet.length = bos.size();
-		
+
 		PacketDispatcher.sendPacketToAllPlayers(packet);
-	}
-	
+	}*/
+
 	@SideOnly(Side.CLIENT)
-	public static class Renderer extends TileEntitySpecialRenderer  {
-	    private ModelCashRegister model = new ModelCashRegister();
+	public static class Renderer extends TileEntitySpecialRenderer {
+		private ModelCashRegister model = new ModelCashRegister();
 
-	    @Override
-	    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick) {
-	    	TileEntityCashRegister cashRegister = (TileEntityCashRegister)tileEntity;
-	        model.render(cashRegister, x, y, z);
-	        
-	        GL11.glPushMatrix();
-	        GL11.glTranslated(x, y, z);
-	        GL11.glRotatef(-90.f, 0.F, 1.0F, 0.0F);
-	        float sc = 2.f/3.f * 1.f/64.f;
-	        GL11.glScalef(sc, -sc, -sc);
-	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        	GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-	        GL11.glDepthMask(false);
-	        
-	        FontRenderer fontRenderer = this.getFontRenderer();
-	        
-	        String s = cashRegister.owner + "/" + cashRegister.getPriceString();
-	        fontRenderer.drawString(s, -fontRenderer.getStringWidth(s) / 2, 0, 0);
+		@Override
+		public void renderTileEntityAt(TileEntity tileEntity, double x,
+				double y, double z, float tick) {
+			TileEntityCashRegister cashRegister = (TileEntityCashRegister) tileEntity;
 
-	        GL11.glDepthMask(true);
-	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	        GL11.glPopMatrix();     
-	    }
+			GL11.glPushMatrix();
+			cashRegister.rotateMatrix();
+
+			model.render(cashRegister, x, y, z);
+
+			GL11.glPushMatrix();
+			GL11.glTranslated(x, y, z);
+			GL11.glRotatef(-90.f, 0.F, 1.0F, 0.0F);
+			float sc = 2.f / 3.f * 1.f / 64.f;
+			GL11.glScalef(sc, -sc, -sc);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+			GL11.glDepthMask(false);
+
+			FontRenderer fontRenderer = this.getFontRenderer();
+
+			String s = cashRegister.owner + "/" + cashRegister.getPriceString();
+			fontRenderer.drawString(s, -fontRenderer.getStringWidth(s) / 2, 0,
+					0);
+
+			GL11.glDepthMask(true);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			GL11.glPopMatrix();
+
+			GL11.glPopMatrix(); // rotation
+		}
 
 	}
 
