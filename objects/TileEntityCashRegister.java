@@ -219,6 +219,8 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 			String s = cashRegister.owner + "/" + cashRegister.getPriceString() + "/" + cashRegister.direction;
 			fontRenderer.drawString(s, - fontRenderer.getStringWidth(s) / 2, 0, 0);
 
+			//cashRegister.mainSlot.getItem();
+			
 			GL11.glDepthMask(true);
 			GL11.glPopMatrix();
 

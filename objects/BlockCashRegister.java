@@ -4,6 +4,7 @@ import java.util.Random;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import de.opatut.tradecraft.Main;
+import de.opatut.tradecraft.common.CommonProxy;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -24,10 +25,11 @@ public class BlockCashRegister extends BlockContainer {
 			.getNextAvailableRenderId();
 
 	public BlockCashRegister(int id) {
-		super(id, Material.rock);
+		super(id, 1, Material.rock);
 		setHardness(4.f);
 		setResistance(10.f);
 		setBlockName("blockCashRegister");
+		setTextureFile(CommonProxy.TEXTURE_ICONS);
 		setCreativeTab(CreativeTabs.tabMisc);
 		float d = 1.f / 16.f;
         setBlockBounds(d, 0.0F, d, 1 - d, 5.f/16.f, 1 - d);
