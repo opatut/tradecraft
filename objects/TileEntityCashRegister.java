@@ -1,26 +1,23 @@
 package de.opatut.tradecraft.objects;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.ForgeHooksClient;
 
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import de.opatut.tradecraft.client.ModelCashRegister;
-import de.opatut.tradecraft.common.PacketHandler;
+import de.opatut.tradecraft.common.CommonProxy;
 import de.opatut.tradecraft.common.TileEntityDirected;
 
 public class TileEntityCashRegister extends TileEntityDirected implements
@@ -169,65 +166,66 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 		return price == 0 ? "free" : "" + price;
 	}
 
-	/*public void sendUpdate() {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(
-				6 * 4 + owner.getBytes().length);
-		DataOutputStream outputStream = new DataOutputStream(bos);
-		try {
-			outputStream.writeInt(PacketHandler.CODE_CASH_REGISTER_UPDATE);
-			outputStream.writeInt(xCoord);
-			outputStream.writeInt(yCoord);
-			outputStream.writeInt(zCoord);
-			outputStream.writeInt(price);
-
-			outputStream.writeInt(owner.getBytes().length);
-			outputStream.write(owner.getBytes());
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = PacketHandler.CHANNEL_CASH_REGISTER;
-		packet.data = bos.toByteArray();
-		packet.length = bos.size();
-
-		PacketDispatcher.sendPacketToAllPlayers(packet);
-	}*/
-
 	@SideOnly(Side.CLIENT)
 	public static class Renderer extends TileEntitySpecialRenderer {
-		private ModelCashRegister model = new ModelCashRegister();
-
+		private static class Model extends ModelBase {
+			private ModelRenderer bottom, top;
+			
+			public Model() {
+				textureHeight = 64;
+				textureWidth = 64;
+				
+				bottom = new ModelRenderer(this, 0, 17);
+		        bottom.addBox(-7F, 0F, -7F, 14, 5, 14);
+		
+		        top = new ModelRenderer(this, 0, 0);
+		        top.addBox(-6F, 3F, -9F, 12, 4, 12);
+		        top.rotateAngleX = 0.44F;
+			}	
+			
+			public void render() {
+		        top.render(1.f/16.f);
+		        bottom.render(1.f/16.f);
+			}
+		}
+		
+		private Model model = new Model();
+		
 		@Override
-		public void renderTileEntityAt(TileEntity tileEntity, double x,
-				double y, double z, float tick) {
+		public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick) {
 			TileEntityCashRegister cashRegister = (TileEntityCashRegister) tileEntity;
 
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			// GL11.glDisable(GL11.GL_LIGHTING);
+			
 			GL11.glPushMatrix();
+	        GL11.glTranslated(x + 0.5, y, z + 0.5);
 			cashRegister.rotateMatrix();
 
-			model.render(cashRegister, x, y, z);
+	        GL11.glPushMatrix();
+	        ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_CASH_REGISTER_MODEL, 0);
+	        model.render();
+	        GL11.glPopMatrix();
 
 			GL11.glPushMatrix();
-			GL11.glTranslated(x, y, z);
-			GL11.glRotatef(-90.f, 0.F, 1.0F, 0.0F);
 			float sc = 2.f / 3.f * 1.f / 64.f;
+			GL11.glTranslated(0, 0.3, 0.5 - 1.f/16.f + 0.001f);
 			GL11.glScalef(sc, -sc, -sc);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 			GL11.glDepthMask(false);
 
 			FontRenderer fontRenderer = this.getFontRenderer();
-
-			String s = cashRegister.owner + "/" + cashRegister.getPriceString();
-			fontRenderer.drawString(s, -fontRenderer.getStringWidth(s) / 2, 0,
-					0);
+			String s = cashRegister.owner + "/" + cashRegister.getPriceString() + "/" + cashRegister.direction;
+			fontRenderer.drawString(s, - fontRenderer.getStringWidth(s) / 2, 0, 0);
 
 			GL11.glDepthMask(true);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glPopMatrix();
 
 			GL11.glPopMatrix(); // rotation
+
+			// GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        // GL11.glEnable(GL11.GL_LIGHTING);
 		}
 
 	}

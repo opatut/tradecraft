@@ -1,6 +1,8 @@
-package de.opatut.tradecraft.common;
 
+package de.opatut.tradecraft.common;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -29,7 +31,12 @@ public class CommonProxy {
 	public void entityJoined(EntityJoinWorldEvent event) {
 		if(event.entity instanceof EntityPlayer) {
 			System.out.println("Player " + event.entity.getEntityName() + " joined the world.");
-			bank.registerPlayer(event.entity.getEntityName());
+			
+			if(event.entity instanceof EntityPlayerMP) {
+				bank.registerPlayer(((EntityPlayerMP)event.entity).username);
+			} else {
+				bank.registerPlayer(((EntityClientPlayerMP)event.entity).username);
+			}
 		}
 	}
 

@@ -118,13 +118,16 @@ public class BlockCashRegister extends BlockContainer {
 	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving entity) {
 		if(entity instanceof EntityPlayer) {
-			TileEntityCashRegister te = (TileEntityCashRegister)world.getBlockTileEntity(x, y, z);
+			TileEntityCashRegister cashRegister = (TileEntityCashRegister)world.getBlockTileEntity(x, y, z);
 			
 			if(entity instanceof EntityPlayerMP) {
-				te.setOwner(((EntityPlayerMP)entity).username);
+				cashRegister.setOwner(((EntityPlayerMP)entity).username);
 			} else {
-				te.setOwner(((EntityClientPlayerMP)entity).username);
+				cashRegister.setOwner(((EntityClientPlayerMP)entity).username);
 			}
+			
+			cashRegister.setDirection(((EntityPlayer) entity).rotationYawHead);
+			
 		}
 	}
 	

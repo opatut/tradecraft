@@ -9,14 +9,9 @@ import net.minecraft.util.MathHelper;
 public abstract class TileEntityDirected extends TileEntityCore {
 	public int direction;
 	
-	public void setDirection(float yaw, float pitch, EntityLiving player) {
-		int facing = MathHelper.floor_double((double) (yaw / 360) + 0.5D) % 4;
-		switch (facing) {
-			case 0: direction = 2; break;
-			case 1: direction = 5; break;
-			case 2: direction = 3; break;
-			case 3: direction = 4; break;
-		}
+	public void setDirection(float angle) {
+		direction = (int)Math.round((0.5 + angle / 360.0) * 4.0) % 4;
+		if(direction < 0) direction += 4;
 	}
 	
 	@Override
@@ -32,13 +27,6 @@ public abstract class TileEntityDirected extends TileEntityCore {
 	}
 	
 	protected void rotateMatrix() {
-		float angle = 0;
-		switch (direction) {
-			case 2: angle = 0; break;
-			case 5: angle = 90; break;
-			case 3: angle = 180; break;
-			case 4: angle = 270; break;
-		}
-        GL11.glRotatef(angle, 0.F, 1.0F, 0.0F);
+        GL11.glRotatef(- 90.f * direction, 0.F, 1.0F, 0.0F);
 	}
 }

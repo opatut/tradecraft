@@ -24,11 +24,11 @@ public class PacketHandler implements IPacketHandler {
 	public void onPacketData(INetworkManager manager,
 			Packet250CustomPayload packet, Player playerEntity) {
 		if (packet.channel.equals(CHANNEL_CASH_REGISTER)) {
-			handleVendingMachine(packet, playerEntity);
+			handleCashRegister(packet, playerEntity);
 		}
 	}
 
-	private void handleVendingMachine(Packet250CustomPayload packet,
+	private void handleCashRegister(Packet250CustomPayload packet,
 			Player player) {
 		
 		DataInputStream inputStream = new DataInputStream(
