@@ -1,19 +1,38 @@
 package de.opatut.tradecraft.objects;
 
+import java.awt.image.BufferedImage;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.RenderEngine;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texturefx.TextureCompassFX;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.MathHelper;
+import net.minecraft.world.storage.MapData;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.IItemRenderer;
+import net.minecraftforge.client.IItemRenderer.ItemRenderType;
+import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -208,21 +227,72 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 	        GL11.glPopMatrix();
 
 			GL11.glPushMatrix();
-			float sc = 2.f / 3.f * 1.f / 64.f;
-			GL11.glTranslated(0, 0.3, 0.5 - 1.f/16.f + 0.001f);
-			GL11.glScalef(sc, -sc, -sc);
+			float sc = 0.2f * 1.f / 16.f;
+			GL11.glTranslated(0, 0.2, 0.5 - 1.f/16.f + 0.001f);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 			GL11.glDepthMask(false);
 
 			FontRenderer fontRenderer = this.getFontRenderer();
-			String s = cashRegister.owner + "/" + cashRegister.getPriceString() + "/" + cashRegister.direction;
-			fontRenderer.drawString(s, - fontRenderer.getStringWidth(s) / 2, 0, 0);
-
-			//cashRegister.mainSlot.getItem();
+			
+			if(cashRegister.mainSlot != null) {				
+				GL11.glPushMatrix();
+				GL11.glTranslated(-0.15f, 0, 0);
+				GL11.glScalef(sc, -sc, -sc);
+				String count = "x" + cashRegister.mainSlot.stackSize;
+				fontRenderer.drawString(count, 0, 0, 0);
+				GL11.glPopMatrix();
+				
+				String price= cashRegister.getPriceString();
+				GL11.glPushMatrix();
+				GL11.glTranslated(0.4f, 0, 0);
+				GL11.glScalef(sc, -sc, -sc);
+				fontRenderer.drawString(price, -fontRenderer.getStringWidth(price), 0, 0);
+				GL11.glPopMatrix();
+			} else {
+				GL11.glScalef(sc, -sc, -sc);
+				fontRenderer.drawString("empty", - fontRenderer.getStringWidth("empty") / 2, 0, 0);
+			}
 			
 			GL11.glDepthMask(true);
 			GL11.glPopMatrix();
+
+			if(cashRegister.mainSlot != null) {
+				ItemStack stack = cashRegister.mainSlot.copy();
+				stack.stackSize = 1;
+	            EntityItem entityItem = new EntityItem(tileEntity.worldObj, 0.0D, 0.0D, 0.0D, stack);
+	            entityItem.hoverStart = 0.0F;
+	            
+	            GL11.glPushMatrix();
+	        	GL11.glTranslated(-0.3, 1.f/16.f, 0.5 - 1.f/16.f);
+	            GL11.glScaled(0.5, 0.5, 0.5);
+			    // GL11.glTranslatef(???);
+                RenderItem.field_82407_g = true;
+                RenderManager.instance.renderEntityWithPosYaw(entityItem, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F);
+                RenderItem.field_82407_g = false;
+	            GL11.glPopMatrix();
+			}
+		        
+		     	/*RenderEngine engine = FMLClientHandler.instance().getClient().renderEngine;
+				
+				GL11.glPushMatrix();
+				sc = 1.f / 16.f * 0.3f;
+				GL11.glScaled(sc, sc, sc);
+				GL11.glRotated(180, 0, 0, 1);
+				GL11.glCullFace(GL11.GL_FRONT);
+				/*
+				GL11.glLoadIdentity();
+				engine.createTextureFromBytes(new int[16*16], 16, 16, 4);
+				int t = engine.allocateAndSetupTexture(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB));
+				engine.bindTexture(t);* /
+				
+				RenderItem render = new RenderItem();
+				render.renderItemIntoGUI(fontRenderer, engine, cashRegister.mainSlot, 0, 0);
+				
+				GL11.glCullFace(GL11.GL_BACK);
+				GL11.glPopMatrix();
+			}*/
+			
 
 			GL11.glPopMatrix(); // rotation
 
