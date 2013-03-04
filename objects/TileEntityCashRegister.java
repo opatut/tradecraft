@@ -1,34 +1,20 @@
 package de.opatut.tradecraft.objects;
 
-import java.awt.image.BufferedImage;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.RenderEngine;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texturefx.TextureCompassFX;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.storage.MapData;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.IItemRenderer;
-import net.minecraftforge.client.IItemRenderer.ItemRenderType;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.opengl.GL11;
 
@@ -36,6 +22,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import de.opatut.tradecraft.client.Helper;
 import de.opatut.tradecraft.common.CommonProxy;
 import de.opatut.tradecraft.common.TileEntityDirected;
 
@@ -182,7 +169,7 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 	}
 
 	public String getPriceString() {
-		return price == 0 ? "free" : "" + price;
+		return price == 0 ? "free" : ("" + price);
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -227,7 +214,7 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 	        GL11.glPopMatrix();
 
 			GL11.glPushMatrix();
-			float sc = 0.2f * 1.f / 16.f;
+			float sc = 0.16f * 1.f / 16.f;
 			GL11.glTranslated(0, 0.2, 0.5 - 1.f/16.f + 0.001f);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glNormal3f(0.0F, 1.0F, 0.0F);
@@ -237,21 +224,27 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 			
 			if(cashRegister.mainSlot != null) {				
 				GL11.glPushMatrix();
-				GL11.glTranslated(-0.15f, 0, 0);
+				GL11.glTranslated(-0.05f, 0.f, 0);
 				GL11.glScalef(sc, -sc, -sc);
+				
+				int lineHeight = (int)(fontRenderer.FONT_HEIGHT * 1.5);
+				
 				String count = "x" + cashRegister.mainSlot.stackSize;
-				fontRenderer.drawString(count, 0, 0, 0);
-				GL11.glPopMatrix();
+				fontRenderer.drawString(count, 0, - lineHeight / 2, 0);
 				
 				String price= cashRegister.getPriceString();
-				GL11.glPushMatrix();
-				GL11.glTranslated(0.4f, 0, 0);
-				GL11.glScalef(sc, -sc, -sc);
-				fontRenderer.drawString(price, -fontRenderer.getStringWidth(price), 0, 0);
+				fontRenderer.drawString(price, 0, lineHeight / 2, 0);
+				
+				// Coin icon
+				GL11.glColor4f(1.f, 1.f, 1.f, 1.f);
+				RenderEngine engine = FMLClientHandler.instance().getClient().renderEngine;
+				engine.bindTexture(engine.getTexture(CommonProxy.TEXTURE_ICONS));
+				Helper.drawTexturedModalRect(fontRenderer.getStringWidth(price) - 4, lineHeight / 2 - 5, 0, 0, 16, 16);
+				
 				GL11.glPopMatrix();
 			} else {
 				GL11.glScalef(sc, -sc, -sc);
-				fontRenderer.drawString("empty", - fontRenderer.getStringWidth("empty") / 2, 0, 0);
+				fontRenderer.drawString("empty", - fontRenderer.getStringWidth("empty") / 2, 0, 0xFFAA0000);
 			}
 			
 			GL11.glDepthMask(true);
@@ -264,7 +257,7 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 	            entityItem.hoverStart = 0.0F;
 	            
 	            GL11.glPushMatrix();
-	        	GL11.glTranslated(-0.3, 1.f/16.f, 0.5 - 1.f/16.f);
+	        	GL11.glTranslated(-0.25f, 1.f/16.f, 0.5 - 1.f/16.f);
 	            GL11.glScaled(0.5, 0.5, 0.5);
 			    // GL11.glTranslatef(???);
                 RenderItem.field_82407_g = true;
@@ -304,5 +297,76 @@ public class TileEntityCashRegister extends TileEntityDirected implements
 
 	public void setOwner(String username) {
 		owner = username;
+	}
+	
+	public boolean isOwner(EntityPlayer player) {
+		return player.username.equalsIgnoreCase(owner);
+	}
+	
+	private int countItems(ItemStack type) {
+		int total = 0;
+		for(ItemStack inv : refillSlots) {
+			if(sameItem(inv, type)) 
+				total += inv.stackSize;
+		}
+		return total;
+	}
+	
+	private boolean refill() {
+		if(mainSlot == null) return false;
+		
+		int missing = mainSlot.stackSize;
+		
+		// first, check if we have enough items
+		if(countItems(mainSlot) < missing) {
+			mainSlot = null;
+			return false;
+		}
+		
+		// now try to find these items in the inventory
+		for(int i = refillSlots.length - 1; i >= 0 && missing > 0; --i) {			
+			if(sameItem(refillSlots[i], mainSlot)) {
+				if(refillSlots[i].stackSize > missing) {
+					refillSlots[i].stackSize -= missing;
+					missing = 0;
+				} else {
+					missing -= refillSlots[i].stackSize;
+					refillSlots[i] = null;	
+				}
+			}
+		}
+		return true;
+	}
+	
+	private static boolean sameItem(ItemStack a, ItemStack b) {
+		if(a == null && b == null) return true;
+		return a != null && b != null && a.itemID == b.itemID && a.getItemDamage() == b.getItemDamage();
+	}
+
+	public boolean attemptBuy(EntityPlayer player) {
+		//if(player.worldObj.isRemote) return false; // don't do stuff in client, please ;)
+		if(mainSlot == null) return false;
+		
+		boolean hasToPay = !isOwner(player) && price >= 0 && !player.worldObj.isRemote;
+		
+		// check balance first
+		if(hasToPay && CommonProxy.bank.getBalance(player.username) < price) {
+			return false;
+		}
+		
+		// try to give the player items
+		if(!player.inventory.addItemStackToInventory(mainSlot.copy())) {
+			return false;
+		}
+
+		refill();
+		sync();
+		
+		if(hasToPay) {
+			System.err.println("Transacting " + price + " from " + player.username + " to " + owner);
+			CommonProxy.bank.transact(player.username, owner, price);
+		}
+		
+		return true;
 	}
 }

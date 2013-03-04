@@ -39,15 +39,23 @@ public class BlockCashRegister extends BlockContainer {
 	public boolean onBlockActivated(World world, int x, int y, int z,
 			EntityPlayer player, int idk, float what, float these, float are) {
 		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
-		if (tileEntity == null || player.isSneaking()) {
-			return false;
-		}
+		
+		if (tileEntity == null) return false;
+
+		TileEntityCashRegister cashRegister = (TileEntityCashRegister) tileEntity;
+		
 		// TODO: select which gui to load here
 		if(!world.isRemote) {
-			((TileEntityCashRegister) tileEntity).sync();
+			cashRegister.sync();
 		}
-		player.openGui(Main.instance, 0, world, x, y, z);
-		return true;
+		
+		// either the owner is sneaking, or it's not the owner
+		if(!player.username.equalsIgnoreCase(cashRegister.getOwner()) || player.isSneaking()) {
+			cashRegister.attemptBuy(player);
+		} else {
+			player.openGui(Main.instance, 0, world, x, y, z);
+		}
+		return true;	
 	}
 
 	@Override

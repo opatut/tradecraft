@@ -1,12 +1,18 @@
 package de.opatut.tradecraft.common;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.packet.Packet250CustomPayload;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 
 public class Bank {
 	public static final int START_AMOUNT = 2000;
@@ -22,6 +28,9 @@ public class Bank {
 	}
 
 	private void setBalance(String username, int amount) {
+		if(!playerMoney.containsKey(username))
+			registerPlayer(username);
+		
 		playerMoney.put(username, amount);
 		// TODO: try to notify the user about the change
 		
@@ -80,7 +89,29 @@ public class Bank {
 		if (playerMoney.containsKey(username))
 			return false;
 
+
+		playerMoney.put(username, 0);
 		setBalance(username, START_AMOUNT);
 		return true;
+	}
+	
+	public void sendBalance(Player player) {
+		String username = ((EntityPlayerMP) player).username;
+	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(2 * 4);
+		DataOutputStream outputStream = new DataOutputStream(bos);
+		try {
+			outputStream.writeInt(PacketHandler.CODE_MONEY_PUSH);
+			outputStream.writeInt(getBalance(username));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		Packet250CustomPayload packet = new Packet250CustomPayload();
+		packet.channel = PacketHandler.CHANNEL_MONEY;
+		packet.data = bos.toByteArray();
+		packet.length = bos.size();
+
+		PacketDispatcher.sendPacketToPlayer(packet, player);
 	}
 }
