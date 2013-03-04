@@ -1,8 +1,10 @@
 package de.opatut.tradecraft;
 
-import com.google.common.eventbus.Subscribe;
-
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemSimpleFoiled;
+import net.minecraft.item.ItemStack;
 import net.minecraft.src.ModLoader;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -21,6 +23,7 @@ import cpw.mods.fml.relauncher.Side;
 import de.opatut.tradecraft.client.RenderTickHandler;
 import de.opatut.tradecraft.common.CommonProxy;
 import de.opatut.tradecraft.common.GuiHandler;
+import de.opatut.tradecraft.common.ItemWallet;
 import de.opatut.tradecraft.common.PacketHandler;
 import de.opatut.tradecraft.common.PlayerTracker;
 import de.opatut.tradecraft.objects.BlockCashRegister;
@@ -35,8 +38,10 @@ public class Main {
 	@SidedProxy(clientSide = "de.opatut.tradecraft.client.ClientProxy", serverSide = "de.opatut.tradecraft.common.CommonProxy")
 	public static CommonProxy proxy;
 
-	// Block definitions
+	// Blocks and Items
 	public final static Block blockCashRegister = new BlockCashRegister(3729);
+	public final static ItemWallet itemWallet = new ItemWallet(3730);
+	
 	
 	@ServerStopping
 	public void onUnload(FMLServerStoppingEvent event) {
@@ -51,7 +56,8 @@ public class Main {
 		GameRegistry.registerPlayerTracker(new PlayerTracker());
 		
 		GameRegistry.registerBlock(blockCashRegister, "blockCashRegister");
-		LanguageRegistry.addName(blockCashRegister, "CashRegister");
+		LanguageRegistry.addName(blockCashRegister, "Cash Register");
+		LanguageRegistry.addName(itemWallet, "Wallet");
 		MinecraftForge.setBlockHarvestLevel(blockCashRegister, "pickaxe", 0);
 
 		ModLoader.registerTileEntity(TileEntityCashRegister.class, "CashRegister");
@@ -60,6 +66,22 @@ public class Main {
 		
 		TickRegistry.registerTickHandler(new RenderTickHandler(), Side.CLIENT);
 		
+		// === Crafting Recipes ===
+		ItemStack W, s, l, c, C, i, r;
+		W = new ItemStack(itemWallet);
+		C = new ItemStack(blockCashRegister);
+		l = new ItemStack(Item.leather);
+		s = new ItemStack(Item.silk);
+		i = new ItemStack(Item.ingotIron);
+		r = new ItemStack(Item.redstone);
+		c = new ItemStack(Block.chest);
 		
+		// wallet
+		GameRegistry.addRecipe(W, "lll", "s  ", "lll", 'l', l, 's', s);
+		GameRegistry.addRecipe(W, "lll", "  s", "lll", 'l', l, 's', s);
+		
+		// cash register
+		GameRegistry.addRecipe(C, "Wcr", "iii", 'W', W, 'c', c, 'r', r, 'i', i);
+		GameRegistry.addRecipe(C, "rcW", "iii", 'W', W, 'c', c, 'r', r, 'i', i);
 	}
 }
