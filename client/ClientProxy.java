@@ -1,7 +1,10 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.client;
 
 import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.registry.ClientRegistry;
+import de.opatut.tradecraft.common.CommonProxy;
+import de.opatut.tradecraft.objects.TileEntityCashRegister;
+import de.opatut.tradecraft.objects.TileEntityCashRegister.Renderer;
 
 public class ClientProxy extends CommonProxy {
 	@Override
@@ -15,6 +18,6 @@ public class ClientProxy extends CommonProxy {
 		// .. it works without preloading anyway. 
 		// MinecraftForgeClient.preloadTexture(TEXTURE_VENDING_MACHINE_GUI);
 
-        ClientRegistry.bindTileEntitySpecialRenderer(VendingMachineTileEntity.class, new VendingMachineTileEntity.Renderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCashRegister.class, new TileEntityCashRegister.Renderer());
 	}
 }

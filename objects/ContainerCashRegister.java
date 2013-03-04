@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.objects;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -6,11 +6,11 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-public class VendingMachineGuiContainer extends Container {
-	protected VendingMachineTileEntity tileEntity;
+public class ContainerCashRegister extends Container {
+	protected TileEntityCashRegister tileEntity;
 
-	public VendingMachineGuiContainer(InventoryPlayer inventoryPlayer,
-			VendingMachineTileEntity entity) {
+	public ContainerCashRegister(InventoryPlayer inventoryPlayer,
+			TileEntityCashRegister entity) {
 		tileEntity = entity;
 
 		addSlotToContainer(new Slot(tileEntity, 0, 80, 27));

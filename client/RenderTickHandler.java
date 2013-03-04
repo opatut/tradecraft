@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.client;
 
 import java.util.EnumSet;
 import java.util.List;

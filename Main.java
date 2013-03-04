@@ -20,19 +20,23 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import de.opatut.tradecraft.common.CommonProxy;
+import de.opatut.tradecraft.common.GuiHandler;
+import de.opatut.tradecraft.common.PacketHandler;
+import de.opatut.tradecraft.objects.BlockCashRegister;
+import de.opatut.tradecraft.objects.TileEntityCashRegister;
 
 @Mod(modid = "de.opatut.tradecraft", name = "Tradecraft", version = "0.1-alpha")
-@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { PacketHandler.CHANNEL_VENDING_MACHINE }, packetHandler = PacketHandler.class)
+@NetworkMod(clientSideRequired = true, serverSideRequired = true, channels = { PacketHandler.CHANNEL_CASH_REGISTER }, packetHandler = PacketHandler.class)
 public class Main {
 	@Instance("de.opatut.tradecraft")
 	public static Main instance;
 
-	@SidedProxy(clientSide = "de.opatut.tradecraft.ClientProxy", serverSide = "de.opatut.tradecraft.ServerProxy")
+	@SidedProxy(clientSide = "de.opatut.tradecraft.client.ClientProxy", serverSide = "de.opatut.tradecraft.common.CommonProxy")
 	public static CommonProxy proxy;
 
 	// Block definitions
-	public final static Block vendingMachineBlock = new VendingMachineBlock(
-			3729);
+	public final static Block blockCashRegister = new BlockCashRegister(3729);
 	
 	@ServerStopping
 	public void onUnload(FMLServerStoppingEvent event) {
@@ -44,12 +48,11 @@ public class Main {
 		System.out.println(proxy.getClass().getName());
 		proxy.onLoad();
 
-		GameRegistry.registerBlock(vendingMachineBlock, "vendingMachineBlock");
-		LanguageRegistry.addName(vendingMachineBlock, "Vending Machine");
-		MinecraftForge.setBlockHarvestLevel(vendingMachineBlock, "pickaxe", 0);
+		GameRegistry.registerBlock(blockCashRegister, "blockCashRegister");
+		LanguageRegistry.addName(blockCashRegister, "CashRegister");
+		MinecraftForge.setBlockHarvestLevel(blockCashRegister, "pickaxe", 0);
 
-		ModLoader.registerTileEntity(VendingMachineTileEntity.class,
-				"VendingMachine");
+		ModLoader.registerTileEntity(TileEntityCashRegister.class, "CashRegister");
 
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
 	}

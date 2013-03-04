@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.common;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
@@ -6,11 +6,11 @@ import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 
 public class CommonProxy {
-	public static final String IMAGE_DIR = "/de/opatut/tradecraft/";
+	public static final String IMAGE_DIR = "/de/opatut/tradecraft/gfx/";
 	
 	public static final String TEXTURE_ICONS = IMAGE_DIR + "icons.png";
-	public static final String TEXTURE_VENDING_MACHINE_GUI = IMAGE_DIR + "vending-machine-gui.png";
-	public static final String TEXTURE_VENDING_MACHINE_MODEL = IMAGE_DIR + "vending-machine-model.png";
+	public static final String TEXTURE_CASH_REGISTER_GUI = IMAGE_DIR + "cash-register-gui.png";
+	public static final String TEXTURE_CASH_REGISTER_MODEL = IMAGE_DIR + "cash-register-model.png";
 	
 	public static final Bank bank = new Bank();
 	public static final String BANK_FILE = "de.opatut.tradecraft.bank-accounts.dat";

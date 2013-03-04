@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -12,15 +12,17 @@ import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import de.opatut.tradecraft.common.CommonProxy;
+import de.opatut.tradecraft.objects.TileEntityCashRegister;
 
 @SideOnly(Side.CLIENT)
-public class VendingMachineModel extends ModelBase {
+public class ModelCashRegister extends ModelBase {
     private static final int TEXTURE_HEIGHT = 64;
     private static final int TEXTURE_WIDTH = 64;
 
     private ModelRenderer bottom, top;
 
-    public VendingMachineModel() {
+    public ModelCashRegister() {
         this.textureHeight = TEXTURE_HEIGHT;
         this.textureWidth = TEXTURE_WIDTH;
         
@@ -37,11 +39,11 @@ public class VendingMachineModel extends ModelBase {
         bottom.render(scale);
     }
     
-    public void render(VendingMachineTileEntity entity, double x, double y, double z) {
+    public void render(TileEntityCashRegister entity, double x, double y, double z) {
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glTranslated(x + 0.5, y, z + 0.5);
-        ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_VENDING_MACHINE_MODEL, 0);
+        ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_CASH_REGISTER_MODEL, 0);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.render(1.f/16.f);     
         GL11.glEnable(GL11.GL_LIGHTING);

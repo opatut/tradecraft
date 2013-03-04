@@ -1,8 +1,9 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.objects;
 
 import java.util.Random;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import de.opatut.tradecraft.Main;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -18,15 +19,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
-public class VendingMachineBlock extends BlockContainer {
+public class BlockCashRegister extends BlockContainer {
 	public final static int RENDER_ID = RenderingRegistry
 			.getNextAvailableRenderId();
 
-	protected VendingMachineBlock(int id) {
+	public BlockCashRegister(int id) {
 		super(id, Material.rock);
 		setHardness(4.f);
 		setResistance(10.f);
-		setBlockName("blockVendingMachine");
+		setBlockName("blockCashRegister");
 		setCreativeTab(CreativeTabs.tabMisc);
 		float d = 1.f / 16.f;
         setBlockBounds(d, 0.0F, d, 1 - d, 5.f/16.f, 1 - d);
@@ -41,7 +42,7 @@ public class VendingMachineBlock extends BlockContainer {
 		}
 		// TODO: select which gui to load here
 		if(!world.isRemote) {
-			((VendingMachineTileEntity) tileEntity).sendUpdate();
+			((TileEntityCashRegister) tileEntity).sendUpdate();
 		}
 		player.openGui(Main.instance, 0, world, x, y, z);
 		return true;
@@ -111,13 +112,13 @@ public class VendingMachineBlock extends BlockContainer {
 
 	@Override
 	public TileEntity createNewTileEntity(World var1) {
-		return new VendingMachineTileEntity();
+		return new TileEntityCashRegister();
 	}
 	
 	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving entity) {
 		if(entity instanceof EntityPlayer) {
-			VendingMachineTileEntity te = (VendingMachineTileEntity)world.getBlockTileEntity(x, y, z);
+			TileEntityCashRegister te = (TileEntityCashRegister)world.getBlockTileEntity(x, y, z);
 			
 			if(entity instanceof EntityPlayerMP) {
 				te.setOwner(((EntityPlayerMP)entity).username);

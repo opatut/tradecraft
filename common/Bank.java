@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.common;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

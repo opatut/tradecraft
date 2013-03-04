@@ -1,4 +1,4 @@
-package de.opatut.tradecraft;
+package de.opatut.tradecraft.objects;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -19,14 +19,16 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import de.opatut.tradecraft.client.ModelCashRegister;
+import de.opatut.tradecraft.common.PacketHandler;
 
-public class VendingMachineTileEntity extends TileEntity implements IInventory {
+public class TileEntityCashRegister extends TileEntity implements IInventory {
 	private ItemStack mainSlot;
 	private ItemStack[] refillSlots;
 	private int price;
     private String owner = "*nobody*";
 
-	public VendingMachineTileEntity() {
+	public TileEntityCashRegister() {
 		refillSlots = new ItemStack[27];
 	}
 
@@ -85,7 +87,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 
 	@Override
 	public String getInvName() {
-		return "de.opatut.tradecraft.vendingmachine";
+		return "de.opatut.tradecraft.cashregister";
 	}
 
 	@Override
@@ -168,7 +170,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream(6 * 4 + owner.getBytes().length);
 		DataOutputStream outputStream = new DataOutputStream(bos);
 		try {
-			outputStream.writeInt(PacketHandler.CODE_VENDING_MACHINE_UPDATE);
+			outputStream.writeInt(PacketHandler.CODE_CASH_REGISTER_UPDATE);
 			outputStream.writeInt(xCoord);
 			outputStream.writeInt(yCoord);
 			outputStream.writeInt(zCoord);
@@ -181,7 +183,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 		}
 
 		Packet250CustomPayload packet = new Packet250CustomPayload();
-		packet.channel = PacketHandler.CHANNEL_VENDING_MACHINE;
+		packet.channel = PacketHandler.CHANNEL_CASH_REGISTER;
 		packet.data = bos.toByteArray();
 		packet.length = bos.size();
 		
@@ -190,11 +192,12 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	
 	@SideOnly(Side.CLIENT)
 	public static class Renderer extends TileEntitySpecialRenderer  {
-	    private VendingMachineModel model = new VendingMachineModel();
+	    private ModelCashRegister model = new ModelCashRegister();
 
 	    @Override
 	    public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick) {
-	        model.render((VendingMachineTileEntity)tileEntity, x, y, z);
+	    	TileEntityCashRegister cashRegister = (TileEntityCashRegister)tileEntity;
+	        model.render(cashRegister, x, y, z);
 	        
 	        GL11.glPushMatrix();
 	        GL11.glTranslated(x, y, z);
@@ -207,7 +210,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	        
 	        FontRenderer fontRenderer = this.getFontRenderer();
 	        
-	        String s = "String!?";
+	        String s = cashRegister.owner + "/" + cashRegister.getPriceString();
 	        fontRenderer.drawString(s, -fontRenderer.getStringWidth(s) / 2, 0, 0);
 
 	        GL11.glDepthMask(true);
