@@ -51,6 +51,8 @@ public class ContainerCashRegister extends Container {
 		ItemStack stack = null;
 		Slot slotObject = (Slot) inventorySlots.get(slot);
 
+		Slot mainSlot = (Slot) inventorySlots.get(0);
+
 		// null checks and checks if the item can be stacked (maxStackSize > 1)
 		if (slotObject != null && slotObject.getHasStack()) {
 			ItemStack stackInSlot = slotObject.getStack();
@@ -62,8 +64,15 @@ public class ContainerCashRegister extends Container {
 					return null;
 				}
 			} else {
-				if (!this.mergeItemStack(stackInSlot, 0, 28, false)) {
-					return null;
+				// do not merge into main stack
+				if(mainSlot.getHasStack()) {
+					if (!this.mergeItemStack(stackInSlot, 1, 28, false)) {
+						return null;
+					}
+				} else {
+					if (!this.mergeItemStack(stackInSlot, 0, 1, false)) {
+						return null;
+					}
 				}
 			}
 

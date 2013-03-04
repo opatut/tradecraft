@@ -83,6 +83,8 @@ public class GuiChashRegister extends GuiContainer {
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int param1, int param2) {
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		
 		// the parameters for drawString are: string, x, y, color
 		fontRenderer.drawString("Cash Register", 8, 6, 0x404040);
 
@@ -90,10 +92,12 @@ public class GuiChashRegister extends GuiContainer {
 		// fontRenderer.drawString(StatCollector.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 0x404040);
 		
 		String p = tileEntity.getPriceString();
-		fontRenderer.drawString(p, xSize / 2 - fontRenderer.getStringWidth(p) / 2, 62, 0xAAAAAA, false);
+		fontRenderer.drawString(p, xSize / 2 - fontRenderer.getStringWidth(p) / 2, 62, 0x777777, false);
 		
 		String o = tileEntity.getOwner();
-		fontRenderer.drawString(o, xSize - 8 - fontRenderer.getStringWidth(o), 6, 0xDDDDDD, false);
+		fontRenderer.drawString(o, xSize - 8 - fontRenderer.getStringWidth(o), 6, 0x404040, false);
+		
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	@Override
