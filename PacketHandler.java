@@ -42,7 +42,6 @@ public class PacketHandler implements IPacketHandler {
 
 			if (code == CODE_VENDING_MACHINE_CHANGE_PRICE) {
 				int change = inputStream.readInt();
-				System.out.println("Change received at server: " + change);
 				TileEntity te = ((EntityPlayerMP)player).worldObj.getBlockTileEntity(x, y, z);
 				if(te == null || !(te instanceof VendingMachineTileEntity)) {
 					System.err.println("Cannot change price at vending machine - no vending machine at " + x + "|" + y + "|" + z + ".");
@@ -53,11 +52,16 @@ public class PacketHandler implements IPacketHandler {
 			} else if (code == CODE_VENDING_MACHINE_UPDATE) {
 				int price = inputStream.readInt();
 				
+				int ownerLength = inputStream.readInt();
+				byte[] b = new byte[ownerLength];
+				inputStream.read(b);
+				String owner = new String(b);
+				
 				TileEntity te = ((EntityClientPlayerMP)player).worldObj.getBlockTileEntity(x, y, z);
 				if(te == null || !(te instanceof VendingMachineTileEntity)) {
 					System.err.println("Cannot update vending machine - no vending machine at " + x + "|" + y + "|" + z + ".");
 				} else {
-					((VendingMachineTileEntity)te).update(price);
+					((VendingMachineTileEntity)te).update(price, owner);
 				}
 			} else {
 				System.err.println("Invalid code for Vending Machine command: " + code);

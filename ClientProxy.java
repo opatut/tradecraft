@@ -6,6 +6,8 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 public class ClientProxy extends CommonProxy {
 	@Override
 	public void onLoad() {
+		super.onLoad();
+		
 		MinecraftForgeClient.preloadTexture(TEXTURE_ICONS);
 
 		// Do we even need this?

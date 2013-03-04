@@ -28,6 +28,8 @@ public class VendingMachineBlock extends BlockContainer {
 		setResistance(10.f);
 		setBlockName("blockVendingMachine");
 		setCreativeTab(CreativeTabs.tabMisc);
+		float d = 1.f / 16.f;
+        setBlockBounds(d, 0.0F, d, 1 - d, 5.f/16.f, 1 - d);
 	}
 
 	@Override

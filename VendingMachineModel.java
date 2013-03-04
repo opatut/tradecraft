@@ -36,6 +36,7 @@ public class VendingMachineModel extends ModelBase {
         top.render(scale);
         bottom.render(scale);
     }
+    
     public void render(VendingMachineTileEntity entity, double x, double y, double z) {
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_LIGHTING);

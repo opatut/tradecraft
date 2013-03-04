@@ -3,14 +3,6 @@ package de.opatut.tradecraft;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
-import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import net.minecraft.block.Block;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,7 +12,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.client.IItemRenderer;
+
+import org.lwjgl.opengl.GL11;
+
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	private ItemStack mainSlot;
@@ -142,9 +140,6 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 			}
 		}
 		
-
-		System.out.println("Setting owner to " + owner + " and price at " + price);
-		
 		tagCompound.setTag("Inventory", itemList);
 		tagCompound.setInteger("Price", price);
 		tagCompound.setString("Owner", owner.isEmpty() ? "*nobody*" : owner);
@@ -159,8 +154,9 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 		}
 	}
 
-	public void update(int newPrice) {
+	public void update(int newPrice, String newOwner) {
 		price = newPrice;
+		owner = newOwner;
 		updateEntity();
 	}
 
@@ -169,7 +165,7 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 	}
 	
 	public void sendUpdate() {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(5 * 4);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(6 * 4 + owner.getBytes().length);
 		DataOutputStream outputStream = new DataOutputStream(bos);
 		try {
 			outputStream.writeInt(PacketHandler.CODE_VENDING_MACHINE_UPDATE);
@@ -177,6 +173,9 @@ public class VendingMachineTileEntity extends TileEntity implements IInventory {
 			outputStream.writeInt(yCoord);
 			outputStream.writeInt(zCoord);
 			outputStream.writeInt(price);
+			
+			outputStream.writeInt(owner.getBytes().length);
+			outputStream.write(owner.getBytes());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
